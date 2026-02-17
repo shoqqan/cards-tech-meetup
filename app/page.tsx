@@ -1,8 +1,10 @@
-"use client";
-import { talks } from "@/shared/lib/talks";
-import { Talks } from "@/widgets/talks";
+import { TalksFilter } from "@/components/talks-filter"
+import { fetchTalks, getAllTagsFromTalks } from "@/lib/talks"
 
-export default function HomePage() {
+export default async function HomePage() {
+  const talks = await fetchTalks()
+  const allTags = getAllTagsFromTalks(talks)
+
   return (
     <main className="mx-auto max-w-6xl px-4 py-10">
       <div className="mb-10 flex flex-col gap-2">
@@ -14,7 +16,7 @@ export default function HomePage() {
           фронтенде, DevOps, тестировании и базах данных.
         </p>
       </div>
-      <Talks />
+      <TalksFilter talks={talks} allTags={allTags} />
     </main>
-  );
+  )
 }

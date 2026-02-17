@@ -1,19 +1,26 @@
-import { notFound } from "next/navigation";
-import Link from "next/link";
-import { ArrowLeft, Clock, Calendar, User, Tag } from "lucide-react";
-import { Badge } from "@/shared/ui/badge";
-import { Separator } from "@/shared/ui/separator";
-import { getTalkById } from "@/shared/lib/talks";
-export default async function TalkPage({
-  params,
-}: {
-  params: Promise<{ id: string }>;
-}) {
-  const { id } = await params;
-  const talk = getTalkById(id);
+import { notFound } from "next/navigation"
+import Link from "next/link"
+import { ArrowLeft, Clock, Calendar, User, Tag } from "lucide-react"
+import { Badge } from "@/components/ui/badge"
+import { Separator } from "@/components/ui/separator"
+import { fetchTalkById } from "@/lib/talks"
+
+export async function generateMetadata({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params
+  const talk = await fetchTalkById(id)
+  if (!talk) return { title: "Talk Not Found" }
+  return {
+    title: `${talk.title} — CARDS TECH MEETUP`,
+    description: talk.description,
+  }
+}
+
+export default async function TalkPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params
+  const talk = await fetchTalkById(id)
 
   if (!talk) {
-    notFound();
+    notFound()
   }
 
   return (
@@ -28,17 +35,19 @@ export default async function TalkPage({
 
       <div className="flex flex-col gap-8">
         {/* Video Player */}
-        <div className="overflow-hidden rounded-xl border border-border/50">
-          <div className="relative aspect-video w-full bg-card">
-            <iframe
-              src={talk.videoUrl}
-              title={talk.title}
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-              allowFullScreen
-              className="absolute inset-0 h-full w-full"
-            />
+        {talk.videoUrl ? (
+          <div className="overflow-hidden rounded-xl border border-border/50">
+            <div className="relative aspect-video w-full bg-card">
+              <iframe
+                src={talk.videoUrl}
+                title={talk.title}
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
+                className="absolute inset-0 h-full w-full"
+              />
+            </div>
           </div>
-        </div>
+        ) : null}
 
         {/* Talk Details */}
         <div className="flex flex-col gap-6">
@@ -110,5 +119,5 @@ export default async function TalkPage({
         </div>
       </div>
     </main>
-  );
+  )
 }
